@@ -6,4 +6,7 @@ function getPasswordChecker(password) {
 
 let passwordChecker = getPasswordChecker(1234);
 
-console.log(passwordChecker(process.argv[2]));
+console.log(passwordChecker(1111));
+console.log(passwordChecker(34));
+console.log(passwordChecker(1431));
+console.log(passwordChecker(1234)); // Ожидаем true
