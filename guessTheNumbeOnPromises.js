@@ -1,10 +1,14 @@
 const readline = require("node:readline");
 const { stdin: input, stdout: output } = require("node:process");
 const rl = readline.createInterface({ input, output });
-const fs = require("fs");
+const fs = require("node:fs/promises");
 
 function guessTheNumber(number, i = 0) {
-  rl.question("Угадайте число: ", (answer) => {
+  const question = new Promise((resolve) =>
+    rl.question("Угадайте число: ", (input) => resolve(input))
+  );
+
+  question.then((answer) => {
     i++;
     let a;
     if (+answer > number) {
@@ -15,21 +19,27 @@ function guessTheNumber(number, i = 0) {
       a = `Ошибочка! Вы ввели не число. Попытка ${i}`;
     } else if (+answer === number) {
       a = `Ура! Вы угадали число с ${i} попытки.`;
-      fs.writeFile("log.txt", `${answer}\n${a}\n`, { flag: "a" }, () => {
+      (async () => {
+        await fs.writeFile("log.txt", `${answer}\n${a}\n`, { flag: "a" });
         console.log(
           "Файл log.txt тоже записан! Можете посмотреть лог игры в каталоге программы."
         );
-      });
+      })();
       console.log(a);
       rl.close();
       return;
     }
+
     console.log(a);
-    fs.writeFile("log.txt", `${answer}\n${a}\n`, { flag: "a" }, (err) => {
-      if (err) {
-        console.log("Ошибочка c записью файла");
-      }
-    });
+    (async () => {
+      await fs
+        .writeFile("log.txt", `${answer}\n${a}\n`, { flag: "a" })
+        .catch((err) => {
+          if (err) {
+            console.log("Ошибочка c записью файла");
+          }
+        });
+    })();
     guessTheNumber(115, i);
   });
 }
